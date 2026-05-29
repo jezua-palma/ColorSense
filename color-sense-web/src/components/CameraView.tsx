@@ -50,24 +50,39 @@ export const CameraView: React.FC<CameraViewProps> = ({
         stream.getTracks().forEach(track => track.stop());
       }
       
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "environment",
-          width: { ideal: 640 },
-          height: { ideal: 480 }
-        }
-      });
+      let mediaStream: MediaStream;
+      try {
+        // Highly compatible mobile-first constraints with back camera preference
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: "environment" }
+          },
+          audio: false
+        });
+      } catch (firstErr) {
+        console.warn("VGA/Environment camera constraint failed, retrying with standard video...", firstErr);
+        // Fallback to any default camera
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+      }
       
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        videoRef.current.setAttribute("playsinline", "true");
+        // Force rendering on iOS Safari
+        videoRef.current.play().catch(playErr => {
+          console.warn("Direct video play failed, waiting for metadata:", playErr);
+        });
       }
       setCameraPermission("granted");
       setErrorMessage("");
     } catch (err: any) {
       console.warn("Camera access failed, falling back to Demo Mode:", err.message);
       setCameraPermission("demo");
-      setErrorMessage("No camera found or permission denied. Running in interactive simulator mode!");
+      setErrorMessage(err.message || "No camera found or permission denied. Running in interactive simulator mode!");
     }
   };
 
@@ -383,6 +398,21 @@ export const CameraView: React.FC<CameraViewProps> = ({
             <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", maxWidth: "280px" }}>
               {errorMessage || "Point and click inside the viewfinder grid below to simulate custom colors!"}
             </p>
+            <button 
+              className="glass-btn primary" 
+              style={{ 
+                marginTop: "12px", 
+                padding: "8px 14px", 
+                borderRadius: "10px", 
+                fontSize: "0.75rem", 
+                gap: "6px",
+                background: "linear-gradient(135deg, var(--color-primary) 0%, #4f46e5 100%)",
+                border: "none"
+              }}
+              onClick={startCamera}
+            >
+              <RefreshCw size={14} /> Enable Camera Access
+            </button>
             <div style={{
               marginTop: "20px",
               display: "grid",
