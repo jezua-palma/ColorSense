@@ -43,38 +43,62 @@ export const CameraView: React.FC<CameraViewProps> = ({
   // Ripple effect on tap
   const [ripple, setRipple] = useState<{ x: number; y: number } | null>(null);
 
-  // Initialize camera
-  const startCamera = async () => {
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [activeDeviceIdx, setActiveDeviceIdx] = useState<number>(0);
+
+  // Initialize camera and enumerate lenses
+  const startCamera = async (deviceOverrideId?: string) => {
     try {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
       
+      // Enumerate available video lenses if not done yet
+      if (videoDevices.length === 0) {
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const videoInputs = devices.filter(d => d.kind === "videoinput");
+          setVideoDevices(videoInputs);
+        } catch (e) {
+          console.warn("Device enumeration failed:", e);
+        }
+      }
+      
       let mediaStream: MediaStream;
-      try {
-        // Highly compatible mobile-first constraints with back camera preference
+      
+      if (deviceOverrideId) {
         mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: "environment" }
-          },
+          video: { deviceId: { exact: deviceOverrideId } },
           audio: false
         });
-      } catch (firstErr) {
-        console.warn("VGA/Environment camera constraint failed, retrying with standard video...", firstErr);
-        // Fallback to any default camera
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false
-        });
+      } else {
+        try {
+          // Highly compatible mobile-first constraints with back camera preference
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: "environment" }
+            },
+            audio: false
+          });
+        } catch (firstErr) {
+          console.warn("VGA/Environment camera constraint failed, retrying with standard video...", firstErr);
+          // Fallback to any default camera
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+          });
+        }
       }
       
       setStream(mediaStream);
       if (videoRef.current) {
+        // Guarantee muted property at DOM level for iOS autoplay!
+        videoRef.current.muted = true;
         videoRef.current.srcObject = mediaStream;
         videoRef.current.setAttribute("playsinline", "true");
         // Force rendering on iOS Safari
         videoRef.current.play().catch(playErr => {
-          console.warn("Direct video play failed, waiting for metadata:", playErr);
+          console.warn("Direct video play failed:", playErr);
         });
       }
       setCameraPermission("granted");
@@ -84,6 +108,13 @@ export const CameraView: React.FC<CameraViewProps> = ({
       setCameraPermission("demo");
       setErrorMessage(err.message || "No camera found or permission denied. Running in interactive simulator mode!");
     }
+  };
+
+  const switchCamera = () => {
+    if (videoDevices.length <= 1) return;
+    const nextIdx = (activeDeviceIdx + 1) % videoDevices.length;
+    setActiveDeviceIdx(nextIdx);
+    startCamera(videoDevices[nextIdx].deviceId);
   };
 
   useEffect(() => {
@@ -373,13 +404,35 @@ export const CameraView: React.FC<CameraViewProps> = ({
       {/* Camera Stream/Demo Frame Container */}
       <div className="camera-wrapper">
         {cameraPermission === "granted" ? (
-          <video
-            ref={videoRef}
-            className="camera-preview"
-            autoPlay
-            playsInline
-            muted
-          />
+          <>
+            <video
+              ref={videoRef}
+              className="camera-preview"
+              autoPlay
+              playsInline
+              muted
+            />
+            {videoDevices.length > 1 && (
+              <button 
+                className="action-circle-btn" 
+                style={{ 
+                  position: "absolute", 
+                  bottom: "16px", 
+                  right: "16px", 
+                  zIndex: 5,
+                  background: "rgba(15, 23, 42, 0.6)",
+                  border: "1px solid rgba(255, 255, 255, 0.25)"
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  switchCamera();
+                }}
+                title="Switch Camera Lens"
+              >
+                <RefreshCw size={20} color="white" />
+              </button>
+            )}
+          </>
         ) : (
           <div 
             className="camera-preview" 
@@ -409,7 +462,7 @@ export const CameraView: React.FC<CameraViewProps> = ({
                 background: "linear-gradient(135deg, var(--color-primary) 0%, #4f46e5 100%)",
                 border: "none"
               }}
-              onClick={startCamera}
+              onClick={() => startCamera()}
             >
               <RefreshCw size={14} /> Enable Camera Access
             </button>

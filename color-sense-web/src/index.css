@@ -564,3 +564,9 @@ h1, h2, h3, h4, h5, h6 {
 .tritanopia-filter {
   filter: url('#tritanopia-matrix');
 }
+
+/* Prevent iOS Safari WebRTC black screen crashes by bypassing filter application on camera previews */
+.camera-wrapper, .camera-preview, video {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
