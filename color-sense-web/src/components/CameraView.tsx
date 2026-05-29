@@ -371,7 +371,7 @@ export const CameraView: React.FC<CameraViewProps> = ({
   const activeThemeSettings = storage.getSettings();
 
   return (
-    <div style={{ padding: "0 0 var(--spacing-lg) 0" }}>
+    <div className="scan-layout-container">
       {/* Hidden processing canvas */}
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
@@ -527,7 +527,7 @@ export const CameraView: React.FC<CameraViewProps> = ({
       </div>
 
       {/* Floating Info & Actions */}
-      <div style={{ padding: "0 20px" }}>
+      <div className="scan-results-container">
         
         {/* Scanned Result display */}
         {scannedColor && (

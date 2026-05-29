@@ -510,7 +510,8 @@ export default function App() {
               Configure accessibility simulation, narration audio settings, and display modes.
             </p>
 
-            {/* Profile avatar preset */}
+            <div className="settings-grid">
+              {/* Profile avatar preset */}
             <div className="glass-card" style={{ margin: "0 0 16px 0", display: "flex", alignItems: "center", gap: "16px" }}>
               <div style={{
                 width: "50px",
@@ -650,8 +651,9 @@ export default function App() {
                 </div>
               </div>
             </div>
+            </div>
             
-            <p style={{ textAlign: "center", fontSize: "0.7rem", color: "var(--text-tertiary)" }}>
+            <p style={{ textAlign: "center", fontSize: "0.7rem", color: "var(--text-tertiary)", marginTop: "20px" }}>
               ColorSense Web SPA • Trained Database v2.1 (1,204 Colors)
             </p>
           </div>

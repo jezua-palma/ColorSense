@@ -570,3 +570,128 @@ h1, h2, h3, h4, h5, h6 {
   filter: none !important;
   -webkit-filter: none !important;
 }
+
+/* ==================== PREMIUM RESPONSIVE DESKTOP LAYOUT (>= 768px) ==================== */
+@media (min-width: 768px) {
+  /* Expand the app container on desktop into a premium centered dashboard */
+  .app-container {
+    max-width: 1200px !important;
+    height: 90vh !important;
+    margin: 5vh auto !important;
+    border-radius: var(--radius-lg) !important;
+    border: 1px solid var(--surface-glass-border) !important;
+    box-shadow: var(--shadow-lg) !important;
+  }
+
+  /* Reposition Tab Bar into a left sidebar navigation */
+  .tab-bar {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 250px !important;
+    height: 100% !important;
+    border-right: 1px solid var(--surface-glass-border) !important;
+    border-top: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    padding: 32px 16px !important;
+    gap: 12px !important;
+    box-shadow: none !important;
+  }
+
+  /* Style Tab Buttons as horizontal sidebar rows */
+  .tab-btn {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    padding: 14px 20px !important;
+    gap: 16px !important;
+    font-size: 0.95rem !important;
+    width: 100% !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast) !important;
+  }
+
+  .tab-btn:hover {
+    background: var(--surface-active);
+    color: var(--text-primary);
+  }
+
+  .tab-btn.active {
+    background: var(--surface-active) !important;
+    color: var(--color-primary) !important;
+  }
+
+  .tab-btn.active .tab-icon {
+    transform: none !important;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.45)) !important;
+  }
+
+  .tab-btn span {
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* Offset header and contents to make room for left sidebar */
+  .app-header {
+    margin-left: 250px !important;
+    padding: var(--spacing-md) var(--spacing-xl) !important;
+  }
+
+  .app-content {
+    margin-left: 250px !important;
+    padding-bottom: var(--spacing-xl) !important;
+    width: calc(100% - 250px) !important;
+    max-width: 950px !important;
+  }
+
+  /* SCAN PAGE - Grid dashboard side-by-side */
+  .scan-layout-container {
+    display: grid !important;
+    grid-template-columns: 1.1fr 1fr !important;
+    gap: 24px !important;
+    padding: 24px !important;
+    align-items: start !important;
+  }
+
+  .camera-wrapper {
+    width: 100% !important;
+    border-radius: var(--radius-md) !important;
+    border: 1px solid var(--surface-glass-border) !important;
+    max-height: 480px !important;
+  }
+
+  .scan-results-container {
+    padding: 0 !important;
+  }
+
+  .scan-results-container .glass-card {
+    margin: 0 !important;
+  }
+
+  /* SANDBOX PAGE - swatches side-by-side */
+  .sandbox-hero {
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    padding: 20px 0 !important;
+  }
+
+  /* SETTINGS PAGE - Grid layout */
+  .settings-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+  }
+
+  .settings-grid .glass-card {
+    margin: 0 !important;
+  }
+
+  /* PALETTE PAGE - Grid expansion */
+  .colors-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
